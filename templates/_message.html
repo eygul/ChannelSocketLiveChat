@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+    <div class="parent">
+        <div class="child">
+            <h2>Chats</h2>
+            <hr>
+            <div class="chat-body-parent">
+                <div class="chat-body" id="tasks">
+                    <div class="message" id="chatContainer">
+                        {% for message in messages %}
+                            {% if message.sender != user %}
+                                <div class="receive">
+                                    <p>{{ message.message }} <strong>-{{ message.sender }}</strong></p>
+                                </div>
+                            {% else %}
+                                <div class="send">
+                                    <p>{{ message.message }}</p>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="form">
+                        <form action="" id="message-form" method="POST">
+                            {% csrf_token %}
+                            <textarea id="msg" cols="30" name="message" rows="5" placeholder="Enter your message" required></textarea>
+                            <button class="submit" type="submit">Send</button>
+                        </form>    
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    function scrollToBottom() {
+        var chatContainer = document.getElementById("chatContainer");
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    const websocketProtocol = window.location.protocol === "https:" ? "wss" : "ws";
+    const wsEndpoint = `${websocketProtocol}://${window.location.host}/ws/notification/{{ room_name }}/`;
+    const socket = new WebSocket(wsEndpoint);
+    socket.onopen = (event) => {
+        console.log("WebSocket connection opened!");
+    };
+
+    socket.onclose = (event) => {
+        console.log("WebSocket connection closed!");
+    };
+
+    document.getElementById('message-form').addEventListener('submit', function(event){
+        event.preventDefault();
+        const message = document.getElementById('msg').value;
+        socket.send(
+            JSON.stringify({
+                'message': message,
+                'room_name': '{{ room_name }}',
+                'sender': '{{ user }}',
+            })
+        );
+    });
+    socket.addEventListener("message", (event) => {
+        const messageData = JSON.parse(event.data)['message'];
+        console.log(messageData);
+
+        var sender = messageData['sender'];
+        var message = messageData['message'];
+
+        if (sender == '{{ user }}'){
+            document.getElementById('msg').value = '';
+        }
+
+        var messageDiv = document.querySelector('.message');
+        if (sender != '{{ user }}') { 
+            messageDiv.innerHTML += '<div class="receive"><p>' + message + '<strong>-' + sender + '</strong></p></div>';
+        } else {
+            messageDiv.innerHTML += '<div class="send"><p>' + message + '</p></div>';
+        }
+        scrollToBottom();
+    });
+</script>
+<style>
+    * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f3f4f6;
+    }
+
+    .parent {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #557A95 0%, #FBEEC1 100%);
+    }
+
+    .child {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        max-width: 600px;
+        width: 100%;
+    }
+
+    .child h2 {
+        font-size: 24px;
+        text-align: center;
+        color: #333;
+    }
+
+    hr {
+        border: 0;
+        border-top: 1px solid #ddd;
+        margin: 20px 0;
+    }
+
+    .chat-body-parent {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .chat-body {
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 10px;
+        border-radius: 10px;
+        background-color: #E7EFF6;
+    }
+
+    .message {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .message .send,
+    .message .receive {
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .send {
+        align-self: flex-end;
+        background-color: #DAAD86;
+        color: #fff;
+    }
+
+    .receive {
+        align-self: flex-start;
+        background-color: #659DBD;
+        color: #fff;
+    }
+
+    .form {
+        margin-top: 20px;
+    }
+
+    textarea {
+        width: calc(100% - 20px);
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        resize: none;
+    }
+
+    button {
+        margin-top: 10px;
+        padding: 10px 20px;
+        background-color: #DAAD86;
+        border: none;
+        border-radius: 5px;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    button:hover {
+        background-color: #FF7E67;
+    }
+</style>
+</html>

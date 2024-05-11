@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Room</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .parent {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #659DBD 0%, #DAAD86 100%);
+        }
+
+        .child {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .child h1 {
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            width: 100%;
+        }
+
+        label {
+            display: block;
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            width: calc(100% - 24px);
+            margin: 10px 0;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #DAAD86;
+            padding: 12px;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #FF7E67;
+        }
+    </style>
+</head>
+<body>
+    <div class="parent">
+        <div class="child">
+            <h1>Enter Room</h1>
+            <form action="" method="POST">
+                {% csrf_token %}
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter your username" name="username" required>
+                <label for="room">Room name</label>
+                <input type="text" id="room" placeholder="Enter room name" name="room" required>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
